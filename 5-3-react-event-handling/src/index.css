@@ -1,0 +1,187 @@
+/* (optional) bring a nicer font; safe to remove if offline */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+
+:root{
+  --bg: #0f172a;            /* slate-900 */
+  --panel: #111827;         /* gray-900 */
+  --card: #0b1220;          /* custom deep */
+  --card-border: #1f2937;   /* gray-800 */
+  --muted: #9ca3af;         /* gray-400 */
+  --text: #e5e7eb;          /* gray-200 */
+  --brand: #7c3aed;         /* violet-600 */
+  --brand-2: #22d3ee;       /* cyan-400 */
+  --danger: #ef4444;        /* red-500 */
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+  --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(124,58,237,.25), transparent 60%),
+    radial-gradient(800px 400px at 110% 10%, rgba(34,211,238,.2), transparent 55%),
+    var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
+  line-height: 1.4;
+}
+
+/* App chrome */
+.app {
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+.app__header {
+  padding: 32px 20px 10px;
+  text-align: center;
+}
+.app__title {
+  margin: 0 0 6px;
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+.app__subtitle {
+  margin: 0;
+  color: var(--muted);
+}
+.app__main {
+  display: grid;
+  place-items: start center;
+  padding: 24px 16px 48px;
+}
+.app__footer {
+  text-align: center;
+  color: var(--muted);
+  padding: 14px 0 24px;
+  font-size: 13px;
+}
+
+/* Card */
+.card {
+  width: min(720px, 92vw);
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)) , var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+  backdrop-filter: blur(6px);
+}
+
+/* Input row */
+.inputRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.input {
+  width: 100%;
+  background: #0a0f1b;
+  color: var(--text);
+  border: 1px solid #1f2a44;
+  border-radius: 12px;
+  padding: 12px 14px;
+  outline: none;
+  transition: box-shadow .2s, border-color .2s, transform .04s;
+}
+.input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px rgba(124,58,237,.18);
+}
+
+/* Buttons */
+.btn {
+  border: 1px solid transparent;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .04s, box-shadow .2s, background .2s, border-color .2s;
+  user-select: none;
+}
+.btn:active { transform: translateY(1px); }
+
+.btn--primary {
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  color: white;
+  box-shadow: 0 8px 20px rgba(124,58,237,.35);
+}
+.btn--primary:hover { filter: brightness(1.05); }
+
+.btn--ghost {
+  background: transparent;
+  border-color: #26324e;
+  color: var(--muted);
+}
+.btn--ghost:hover {
+  border-color: #334266;
+  color: #cbd5e1;
+}
+
+.footerRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* List */
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 8px;
+  display: grid;
+  gap: 8px;
+}
+.list__placeholder {
+  color: var(--muted);
+  font-size: 14px;
+  border: 1px dashed #28304a;
+  padding: 14px 12px;
+  border-radius: 12px;
+}
+
+/* Item */
+.item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 12px;
+  background: #0c1426;
+  border: 1px solid #1b2540;
+  border-radius: 12px;
+  transition: border-color .2s, transform .04s;
+}
+.item:hover { border-color: #2a375c; }
+.item__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.item__actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* Icon buttons */
+.iconBtn {
+  border: 1px solid #26324e;
+  background: #0b1222;
+  color: #cbd5e1;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform .04s, border-color .2s, background .2s, color .2s, box-shadow .2s;
+}
+.iconBtn:hover {
+  border-color: #334266;
+  color: white;
+  box-shadow: 0 6px 16px rgba(0,0,0,.25);
+}
+.iconBtn--danger:hover {
+  border-color: rgba(239,68,68,.5);
+  color: #fecaca;
+}

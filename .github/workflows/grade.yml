@@ -1,0 +1,106 @@
+name: Auto Grade
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      due_date:
+        description: "Override ISO due date/time (default is 2025-10-06T23:59:59+03:00)"
+        required: false
+        default: ""
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Use Node with cache IF a lockfile exists anywhere we care about
+      - name: Use Node (cache)
+        if: ${{ hashFiles('package-lock.json', 'npm-shrinkwrap.json', 'yarn.lock', '5-3-react-event-handling/**/package-lock.json', '5-3-react-event-handling/**/npm-shrinkwrap.json', '5-3-react-event-handling/**/yarn.lock') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            npm-shrinkwrap.json
+            yarn.lock
+            5-3-react-event-handling/**/package-lock.json
+            5-3-react-event-handling/**/npm-shrinkwrap.json
+            5-3-react-event-handling/**/yarn.lock
+
+      # Fallback: Use Node without cache if no lockfile is present
+      - name: Use Node (no cache)
+        if: ${{ hashFiles('package-lock.json', 'npm-shrinkwrap.json', 'yarn.lock', '5-3-react-event-handling/**/package-lock.json', '5-3-react-event-handling/**/npm-shrinkwrap.json', '5-3-react-event-handling/**/yarn.lock') == '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set Due Date Env
+        run: |
+          if [ -n "${{ github.event.inputs.due_date }}" ]; then
+            echo "DUE_DATE=${{ github.event.inputs.due_date }}" >> $GITHUB_ENV
+          else
+            echo "DUE_DATE=2025-10-06T23:59:59+03:00" >> $GITHUB_ENV
+          fi
+
+      - name: Install deps (if any)
+        run: |
+          # Root-level project
+          if [ -f package.json ]; then
+            (npm ci || npm install)
+          fi
+          # Lab subfolder project
+          if [ -f 5-3-react-event-handling/package.json ]; then
+            pushd 5-3-react-event-handling
+            (npm ci || npm install)
+            popd
+          fi
+
+      - name: Run grader
+        env:
+          DUE_DATE: ${{ env.DUE_DATE }}
+        run: |
+          set -e
+          GRADER_PATH=""
+          if [ -f "5-3-react-event-handling/script/grader.js" ]; then
+            GRADER_PATH="5-3-react-event-handling/script/grader.js"
+          elif [ -f "5-3-react-event-handling/script/grade.cjs" ]; then
+            GRADER_PATH="5-3-react-event-handling/script/grade.cjs"
+          elif [ -f "scripts/grader.js" ]; then
+            GRADER_PATH="scripts/grader.js"
+          else
+            echo "No grader found at expected locations." >&2
+            exit 1
+          fi
+
+          node "$GRADER_PATH" | tee grade-console.txt
+
+          # Legacy copy if an old script writes in its own folder
+          for p in \
+            5-3-react-event-handling/script/grade-report.md \
+            5-3-react-event-handling/script/grade.json; do
+            if [ -f "$p" ]; then
+              cp "$p" .
+            fi
+          done
+
+      - name: Upload grading artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: grade
+          path: |
+            grade-report.md
+            grade.json
+            grade-console.txt
+
+      - name: Post summary
+        if: always()
+        run: |
+          if [ -f grade-report.md ]; then
+            cat grade-report.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No grade report produced." >> $GITHUB_STEP_SUMMARY
+          fi
